@@ -11,6 +11,7 @@ import SwiftUI
 struct BillBuddyApp: App {
     var body: some Scene {
         WindowGroup {
+            WelcomeView()
             ContentView()
         }
     }
