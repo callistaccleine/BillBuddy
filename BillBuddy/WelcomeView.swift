@@ -33,7 +33,7 @@ struct WelcomeView: View {
                     .padding(.horizontal, 30)
                 
                 // Next Button
-                NavigationLink(destination: ContentView()) {
+                NavigationLink(destination: SplitBillView()) {
                     HStack {
                         Spacer()
                         Text("Get Started")
