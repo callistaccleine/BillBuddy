@@ -42,13 +42,9 @@ struct ContentView: View {
                         }
                     }
                 }
-                Section (header: Text("-----")){
-                    
+                Section (header: Text("Total per person")){
+                    Text("$ \(calculateTotal(), specifier: "%.2f")")
                 }
-                Section (header: Text("----")){
-                    
-                }
-        
             }.navigationTitle(Text("Bill Buddy"))
         }
     }
