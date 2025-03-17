@@ -9,7 +9,7 @@ import SwiftUI
 
 struct WelcomeView: View {
     var body: some View {
-        NavigationView {
+        NavigationStack {
             VStack(spacing: 20) {
                 Spacer()
                 
@@ -43,7 +43,7 @@ struct WelcomeView: View {
                 .padding(.top, 10)
 
                 // Get Started Button
-                NavigationLink(destination: ContentView()) {
+                NavigationLink(destination: HomeView()) {
                     HStack {
                         Spacer()
                         Text("Get Started")
