@@ -34,7 +34,7 @@ struct SplitBillView: View {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Enter Bill Amount")
                         .font(.headline)
-                    TextField("Rp 0", text: $totalCost)
+                    TextField("$", text: $totalCost)
                         .keyboardType(.decimalPad)
                         .padding()
                         .background(Color(.systemGray6))
