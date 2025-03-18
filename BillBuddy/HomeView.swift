@@ -1,37 +1,22 @@
-//
-//  HomeView.swift
-//  BillBuddy
-//
-//  Created by Callista Cleine on 17/3/2025.
-//
-
-import SwiftUI
-
 import SwiftUI
 
 struct HomeView: View {
     // Sample User Data
     let userName = "Bella" // Change this dynamically
-    let balance: Double = 13470.00
-    
+    let balance: Double = 50.00
+
     let recentSplits: [SplitBill] = [
-        SplitBill(id: 1, place: "CFC Sukabumi", amount: 43.27, people: ["Alex", "Emma", "John", "Sophia"]),
-        SplitBill(id: 2, place: "Starbucks", amount: 23.50, people: ["Mike", "Eleanor"])
-    ]
-    
-    let recentActivity: [Transaction] = [
-        Transaction(id: 1, friend: "Alex", description: "paid for Dinner", amount: 45.00, date: "March 16, 2025"),
-        Transaction(id: 2, friend: "Emma", description: "paid for Uber", amount: 18.75, date: "March 15, 2025")
+        SplitBill(id: 1, place: "Katsuretsu", amount: 43.27, people: ["Alex", "Emma", "John", "Sophia"]),
+        SplitBill(id: 2, place: "Little Rouge", amount: 23.50, people: ["Mike", "Eleanor"])
     ]
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ScrollView {
                 VStack(spacing: 20) {
                     
                     // MARK: - Header (User Profile + Greeting)
                     HStack {
-                        // Profile Icon with Initials
                         ProfileInitialsView(name: userName)
                         
                         VStack(alignment: .leading) {
@@ -57,17 +42,47 @@ struct HomeView: View {
                     
                     // MARK: - Balance Card
                     VStack {
-                        Text("Your Balance")
-                            .font(.headline)
-                            .foregroundColor(.gray)
-                        Text("$\(String(format: "%.2f", balance))")
-                            .font(.system(size: 32, weight: .bold))
+                        HStack {
+                            VStack(alignment: .leading) {
+                                Text("Your Balance")
+                                    .font(.headline)
+                                    .foregroundColor(.white)
+                                Text("$\(String(format: "%.2f", balance))")
+                                    .font(.system(size: 25, weight: .bold))
+                                    .foregroundColor(.white)
+                            }
+                            Spacer()
+                            Button(action: {
+                                print("Top Up tapped")
+                            }) {
+                                HStack {
+                                    Image(systemName: "plus")
+                                    Text("Top Up")
+                                }
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 6)
+                                .background(Color.gray.opacity(0.3))
+                                .foregroundColor(.white)
+                                .cornerRadius(20)
+                            }
+                        }
+                        .padding()
+                        .frame(width: 350, height: 100)
+                        .background(Color.black)
+                        .cornerRadius(15)
                     }
-                    .frame(width: 350, height: 120)
-                    .background(Color.white)
-                    .cornerRadius(15)
-                    .shadow(color: .gray.opacity(0.2), radius: 5)
+                    .padding(.horizontal)
+
                     
+                    // MARK: - Quick Action Buttons
+                    HStack(spacing: 30) {
+                        QuickActionButton(icon: "arrow.left.arrow.right", label: "Transfer", destination: AnyView(Text("Transfer Page")))
+                        QuickActionButton(icon: "arrow.clockwise", label: "Request", destination: AnyView(Text("Request Page")))
+                        QuickActionButton(icon: "doc.text", label: "Split Bill", destination: AnyView(ContentView())) // ✅ Goes to ContentView
+                        QuickActionButton(icon: "square.grid.2x2", label: "More", destination: AnyView(Text("More Options")))
+                    }
+                    .padding(.top, 10)
+
                     // MARK: - Recent Billing
                     VStack(alignment: .leading, spacing: 10) {
                         HStack {
@@ -86,29 +101,33 @@ struct HomeView: View {
                             RecentSplitBillView(split: split)
                         }
                     }
-                    
-                    // MARK: - Recent Activity
-                    VStack(alignment: .leading, spacing: 10) {
-                        HStack {
-                            Text("Recent Activity")
-                                .font(.headline)
-                            Spacer()
-                            NavigationLink(destination: Text("All Transactions")) {
-                                Text("View all")
-                                    .foregroundColor(.blue)
-                                    .font(.subheadline)
-                            }
-                        }
-                        .padding(.horizontal)
+                    .padding(.bottom)
+                } // Close VStack
+            } // Close ScrollView
+        } // Close NavigationStack
+    }
+}
 
-                        ForEach(recentActivity) { activity in
-                            RecentActivityView(transaction: activity)
-                        }
-                    }
+// MARK: - Quick Action Button Component
+struct QuickActionButton: View {
+    let icon: String
+    let label: String
+    let destination: AnyView
 
-                }
-                .padding()
+    var body: some View {
+        VStack {
+            NavigationLink(destination: destination) {
+                Image(systemName: icon)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 30, height: 30)
+                    .padding()
+                    .background(Color.white)
+                    .clipShape(Circle())
+                    .shadow(radius: 3)
             }
+            Text(label)
+                .font(.caption)
         }
     }
 }
@@ -187,7 +206,6 @@ struct RecentSplitBillView: View {
                 }
             }
             
-            // ✅ Updated NavigationLink inside the button
             NavigationLink(destination: ContentView()) {
                 Text("Split Now")
                     .font(.headline)
@@ -205,29 +223,6 @@ struct RecentSplitBillView: View {
     }
 }
 
-
-struct RecentActivityView: View {
-    let transaction: Transaction
-    
-    var body: some View {
-        HStack {
-            VStack(alignment: .leading) {
-                Text("\(transaction.friend) \(transaction.description)")
-                    .font(.subheadline)
-                Text(transaction.date)
-                    .font(.caption)
-                    .foregroundColor(.gray)
-            }
-            Spacer()
-            Text("$\(String(format: "%.2f", transaction.amount))")
-                .font(.headline)
-        }
-        .padding()
-        .background(Color.white)
-        .cornerRadius(12)
-        .shadow(color: .gray.opacity(0.2), radius: 5)
-    }
-}
 
 // MARK: - Preview
 #Preview {
