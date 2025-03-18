@@ -24,14 +24,19 @@ struct AuthDataResultModel {
 
 final class AuthenticationManager {
     
-    static let shared = AuthenticationManager ()
-    private init () { }
+    static let shared = AuthenticationManager()
+    private init() {}
 
-    func createUser(email: String, password: String) async throws -> AuthDataResultModel {
-            let authDataResult = try await Auth.auth().createUser(withEmail: email, password: password)
-            return AuthDataResultModel(user: authDataResult.user)
-        
-        
+    // 🔹 Sign Up (Create New User)
+    func signUpUser(email: String, password: String) async throws -> AuthDataResultModel {
+        let authDataResult = try await Auth.auth().createUser(withEmail: email, password: password)
+        return AuthDataResultModel(user: authDataResult.user)
+    }
+
+    // 🔹 Log In (Authenticate Existing User)
+    func loginUser(email: String, password: String) async throws -> AuthDataResultModel {
+        let authDataResult = try await Auth.auth().signIn(withEmail: email, password: password)
+        return AuthDataResultModel(user: authDataResult.user)
     }
 }
 

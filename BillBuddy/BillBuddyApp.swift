@@ -25,7 +25,7 @@ struct BillBuddyApp: App {
 
     var body: some Scene {
         WindowGroup {
-            NavigationView {
+            NavigationStack {
                 LoginView()
                 WelcomeView()
             }

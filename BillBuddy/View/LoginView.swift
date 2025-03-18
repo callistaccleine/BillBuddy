@@ -4,7 +4,48 @@ import SwiftUI
 final class LoginViewModel: ObservableObject {
     @Published var email: String = ""
     @Published var password: String = ""
+    @Published var isLoggedIn: Bool = false
+    @Published var errorMessage: String?
+
+    // 🔹 Sign Up (Register a New User)
+    func signUp() {
+        guard !email.isEmpty, !password.isEmpty else {
+            errorMessage = "Please enter email and password."
+            return
+        }
+
+        Task {
+            do {
+                let newUser = try await AuthenticationManager.shared.signUpUser(email: email, password: password)
+                print("🎉 Account created successfully: \(newUser.email ?? "No Email")")
+                isLoggedIn = true
+            } catch {
+                errorMessage = "Error: \(error.localizedDescription)"
+            }
+        }
+    }
+
+    // Log In (Authenticate an Existing User)
+    func signIn() {
+        guard !email.isEmpty, !password.isEmpty else {
+            errorMessage = "Please enter email and password."
+            return
+        }
+
+        Task {
+            do {
+                let user = try await AuthenticationManager.shared.loginUser(email: email, password: password)
+                print("✅ Logged in successfully: \(user.email ?? "No Email")")
+                isLoggedIn = true
+            } catch {
+                errorMessage = "Login failed: \(error.localizedDescription)"
+            }
+        }
+    }
 }
+
+
+    
 
 struct LoginView: View {
     @StateObject private var viewModel = LoginViewModel()
@@ -99,6 +140,7 @@ struct LoginView: View {
                 .padding(.horizontal, 20)
                 .padding(.top, 5)
             
+            
             // Forgot Password Button
             HStack {
                 Spacer()
@@ -119,7 +161,7 @@ struct LoginView: View {
             
             // Login Button
             Button(action: {
-                // Handle login action
+                viewModel.signIn()
             }) {
                 Text("Login")
                     .fontWeight(.bold)
@@ -139,7 +181,7 @@ struct LoginView: View {
                     .foregroundColor(.gray)
                 
                 Button(action: {
-                    // Handle sign-up action
+                    viewModel.signUp()
                 }) {
                     Text("Sign up")
                         .font(.footnote)
