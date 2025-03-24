@@ -6,7 +6,6 @@ final class LoginViewModel: ObservableObject {
     @Published var isLoggedIn: Bool = false
     @Published var errorMessage: String?
 
-    // 🔹 Sign Up (Register a New User)
     func signUp() {
         guard !email.isEmpty, !password.isEmpty else {
             errorMessage = "Please enter email and password."
@@ -24,7 +23,7 @@ final class LoginViewModel: ObservableObject {
             }
         }
     }
-    // 🔹 Log In (Authenticate an Existing User)
+
     func signIn() {
         guard !email.isEmpty, !password.isEmpty else {
             errorMessage = "Please enter email and password."
@@ -49,38 +48,33 @@ final class LoginViewModel: ObservableObject {
     }
 }
 
-import SwiftUI
-
 struct LoginView: View {
     @StateObject private var viewModel = LoginViewModel()
-    
+    @State private var isPasswordVisible: Bool = false
+
     var body: some View {
         VStack {
             Spacer().frame(height: 20)
-            
-            // Logo
+
             Image(systemName: "shield.fill")
                 .resizable()
                 .scaledToFit()
                 .frame(width: 80, height: 80)
                 .foregroundColor(.blue)
-            
-            // Welcome Text
+
             Text("Welcome Back")
                 .font(.title2)
                 .fontWeight(.bold)
                 .padding(.top, 10)
-            
+
             Text("Please enter your details.")
                 .font(.subheadline)
                 .foregroundColor(.gray)
-            
+
             Spacer().frame(height: 20)
-            
-            // Google Sign-in Button
-            Button(action: {
-                // Handle Google Sign-in
-            }) {
+
+            // Google Button
+            Button(action: {}) {
                 HStack {
                     Image(systemName: "g.circle.fill")
                         .resizable()
@@ -93,17 +87,12 @@ struct LoginView: View {
                 .padding()
                 .background(Color.white)
                 .cornerRadius(8)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(Color.gray, lineWidth: 1)
-                )
+                .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.gray, lineWidth: 1))
             }
             .padding(.horizontal, 20)
-            
-            // Apple Sign-in Button
-            Button(action: {
-                // Handle Apple Sign-in
-            }) {
+
+            // Apple Button
+            Button(action: {}) {
                 HStack {
                     Image(systemName: "applelogo")
                         .resizable()
@@ -119,52 +108,59 @@ struct LoginView: View {
             }
             .padding(.horizontal, 20)
             .padding(.top, 10)
-            
-            // OR Separator
+
+            // Separator
             HStack {
-                Rectangle()
-                    .frame(height: 1)
-                    .foregroundColor(.gray.opacity(0.3))
-                Text("or")
-                    .font(.caption)
-                    .foregroundColor(.gray)
-                Rectangle()
-                    .frame(height: 1)
-                    .foregroundColor(.gray.opacity(0.3))
+                Rectangle().frame(height: 1).foregroundColor(.gray.opacity(0.3))
+                Text("or").font(.caption).foregroundColor(.gray)
+                Rectangle().frame(height: 1).foregroundColor(.gray.opacity(0.3))
             }
             .padding(.horizontal, 30)
             .padding(.vertical, 10)
-            
-            // Email Input
+
+            // Email
             TextField("Email", text: $viewModel.email)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .padding(.horizontal, 20)
                 .autocapitalization(.none)
                 .disableAutocorrection(true)
 
-            // Password Input
-            SecureField("Password", text: $viewModel.password)
+            // Password with eye icon
+            ZStack(alignment: .trailing) {
+                Group {
+                    if isPasswordVisible {
+                        TextField("Password", text: $viewModel.password)
+                    } else {
+                        SecureField("Password", text: $viewModel.password)
+                    }
+                }
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .padding(.horizontal, 20)
-                .padding(.top, 5)
                 .autocapitalization(.none)
                 .disableAutocorrection(true)
 
-            
-            // 🔴 Show error if login fails
+                Button(action: {
+                    isPasswordVisible.toggle()
+                }) {
+                    Image(systemName: isPasswordVisible ? "eye.slash" : "eye")
+                        .foregroundColor(.gray)
+                        .padding(.trailing, 30)
+                }
+            }
+            .padding(.top, 5)
+
+            // Error Message
             if let error = viewModel.errorMessage {
                 Text(error)
                     .foregroundColor(.red)
                     .font(.caption)
                     .padding(.top, 5)
             }
-            
+
             // Forgot Password
             HStack {
                 Spacer()
-                Button(action: {
-                    // Handle forgot password action
-                }) {
+                Button(action: {}) {
                     Text("Forgot password")
                         .font(.caption)
                         .foregroundColor(.blue)
@@ -173,10 +169,10 @@ struct LoginView: View {
                 .padding(.trailing, 20)
             }
             .padding(.vertical, 5)
-            
+
             Spacer().padding(.vertical, 5)
-            
-            // 🔹 Login Button
+
+            // Login Button
             Button(action: {
                 viewModel.signIn()
             }) {
@@ -190,13 +186,13 @@ struct LoginView: View {
             }
             .padding(.horizontal, 20)
             .padding(.top, 10)
-            
+
             // Sign-up link
             HStack {
                 Text("Don’t have an account?")
                     .font(.footnote)
                     .foregroundColor(.gray)
-                
+
                 Button(action: {
                     viewModel.signUp()
                 }) {
@@ -207,7 +203,7 @@ struct LoginView: View {
                 }
             }
             .padding(.top, 10)
-            
+
             Spacer()
         }
     }

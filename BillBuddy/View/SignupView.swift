@@ -1,90 +1,103 @@
 import SwiftUI
 
-struct SignUpView: View {
-    @State private var selectedTab: String = "Register"
-    @State private var fullName: String = ""
-    @State private var email: String = ""
-    @State private var password: String = ""
-    @State private var confirmPassword: String = ""
-    @State private var isPasswordVisible: Bool = false
-    @State private var isConfirmPasswordVisible: Bool = false
-    
-    
-    
-    var body: some View {
-        VStack {
-            Spacer().frame(height: 30)
-            
-            // Title
-            Text("Create an account")
-                .font(.title2)
-                .fontWeight(.bold)
-            
-            // Segmented Control
-            HStack {
-                Button(action: {
-                    // Navigate to Login
-                }) {
-                    Text("Login")
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(selectedTab == "Login" ? Color.white : Color.clear)
-                        .foregroundColor(.black)
-                        .cornerRadius(25)
+final class SignUpViewModel: ObservableObject {
+    @Published var fullName: String = ""
+    @Published var email: String = ""
+    @Published var password: String = ""
+    @Published var confirmPassword: String = ""
+    @Published var errorMessage: String?
+    @Published var isRegistered: Bool = false
+
+    func register() {
+        guard !email.isEmpty, !password.isEmpty else {
+            errorMessage = "Please fill in all fields."
+            return
+        }
+
+        guard password == confirmPassword else {
+            errorMessage = "Passwords do not match."
+            return
+        }
+
+        Task {
+            do {
+                let user = try await AuthenticationManager.shared.signUpUser(email: email, password: password)
+                print("Registered: \(user.email ?? "")")
+                DispatchQueue.main.async {
+                    self.isRegistered = true
                 }
-                
-                Button(action: {
-                    selectedTab = "Register"
-                }) {
+            } catch {
+                DispatchQueue.main.async {
+                    self.errorMessage = "Error: \(error.localizedDescription)"
+                }
+            }
+        }
+    }
+}
+
+struct SignUpView: View {
+    @StateObject private var viewModel = SignUpViewModel()
+    @State private var showPassword: Bool = false
+    @State private var showConfirmPassword: Bool = false
+
+    var body: some View {
+        NavigationView {
+            VStack {
+                Spacer().frame(height: 30)
+
+                // Title
+                Text("Create an account")
+                    .font(.title2)
+                    .fontWeight(.bold)
+
+                // Segmented Control
+                HStack {
+                    NavigationLink(destination: LoginView()) {
+                        Text("Login")
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .foregroundColor(.black)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 25)
+                                    .stroke(Color.black.opacity(0.2), lineWidth: 1)
+                            )
+                    }
+
                     Text("Register")
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(selectedTab == "Register" ? Color.blue : Color.clear)
-                        .foregroundColor(selectedTab == "Register" ? .white : .black)
+                        .background(Color.blue)
+                        .foregroundColor(.white)
                         .cornerRadius(25)
                 }
-            }
-            .frame(maxWidth: .infinity)
-            .background(Color.white.opacity(0.3))
-            .cornerRadius(25)
-            .padding(.horizontal, 40)
-            .padding(.top, 10)
-            
-            // Input Fields
-            VStack(spacing: 15) {
-                CustomTextField(placeholder: "Full Name", text: $fullName)
-                CustomTextField(placeholder: "Email", text: $email, keyboardType: .emailAddress)
-                
-                // Password Fields
-                PasswordField(placeholder: "Password", text: $password, isSecure: !isPasswordVisible)
-                    .overlay(
-                        HStack {
-                            Spacer()
-                            Button(action: { isPasswordVisible.toggle() }) {
-                                Image(systemName: isPasswordVisible ? "eye.slash" : "eye")
-                                    .foregroundColor(.gray)
-                            }
-                            .padding(.trailing, 15)
-                        }
-                    )
-                
-                PasswordField(placeholder: "Confirm Password", text: $confirmPassword, isSecure: !isConfirmPasswordVisible)
-                    .overlay(
-                        HStack {
-                            Spacer()
-                            Button(action: { isConfirmPasswordVisible.toggle() }) {
-                                Image(systemName: isConfirmPasswordVisible ? "eye.slash" : "eye")
-                                    .foregroundColor(.gray)
-                            }
-                            .padding(.trailing, 15)
-                        }
-                    )
-            }
-            .padding(.horizontal, 20)
-            .padding(.top, 10)
-            
-            // Sign Up Button
-            NavigationLink(destination: LoginView()) {
+                .padding(.horizontal, 40)
+                .padding(.top, 10)
+
+                // Input Fields
+                VStack(spacing: 15) {
+                    CustomTextField(placeholder: "Full Name", text: $viewModel.fullName)
+                    CustomTextField(placeholder: "Email", text: $viewModel.email, keyboardType: .emailAddress)
+                        .autocapitalization(.none)
+
+                    PasswordField(placeholder: "Password", text: $viewModel.password, isVisible: $showPassword)
+
+                    PasswordField(placeholder: "Confirm Password", text: $viewModel.confirmPassword, isVisible: $showConfirmPassword)
+                }
+                .padding(.horizontal, 20)
+                .padding(.top, 10)
+
+                // Error Message
+                if let error = viewModel.errorMessage {
+                    Text(error)
+                        .foregroundColor(.red)
+                        .font(.footnote)
+                        .padding(.top, 5)
+                }
+
+                // Create Account Button
+                Button(action: {
+                    viewModel.register()
+                }) {
                     Text("Create Account")
                         .fontWeight(.bold)
                         .foregroundColor(.white)
@@ -95,7 +108,13 @@ struct SignUpView: View {
                 }
                 .padding(.horizontal, 20)
                 .padding(.top, 10)
-                
+
+                // Navigation to LoginView on success
+                NavigationLink(destination: LoginView(),
+                               isActive: $viewModel.isRegistered,
+                               label: { EmptyView() }
+                )
+
                 // OR Separator
                 HStack {
                     Rectangle()
@@ -110,22 +129,22 @@ struct SignUpView: View {
                 }
                 .padding(.horizontal, 30)
                 .padding(.vertical, 10)
-                
+
                 // Google & Apple Buttons
                 HStack(spacing: 20) {
                     SocialLoginButton(imageName: "g.circle.fill", text: "Google", backgroundColor: .white, foregroundColor: .black)
                     SocialLoginButton(imageName: "applelogo", text: "Apple", backgroundColor: .black, foregroundColor: .white)
                 }
                 .padding(.horizontal, 20)
-                
+
                 Spacer()
             }
             .padding()
         }
     }
+}
 
-
-// MARK: - Custom Text Fields (Updated: Removed inner box)
+// MARK: - Custom Text Field
 struct CustomTextField: View {
     var placeholder: String
     @Binding var text: String
@@ -141,37 +160,40 @@ struct CustomTextField: View {
                     .stroke(Color.gray.opacity(0.3), lineWidth: 1)
             )
             .keyboardType(keyboardType)
+            .autocapitalization(.none)
+            .disableAutocorrection(true)
     }
 }
 
-// MARK: - Password Field (Updated: Removed inner box)
+// MARK: - Password Field
 struct PasswordField: View {
     var placeholder: String
     @Binding var text: String
-    var isSecure: Bool
+    @Binding var isVisible: Bool
 
     var body: some View {
-        ZStack {
-            if isSecure {
-                SecureField(placeholder, text: $text)
-                    .padding(15)
-                    .background(Color.white)
-                    .cornerRadius(25)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 25)
-                            .stroke(Color.gray.opacity(0.3), lineWidth: 1)
-                    )
-            } else {
-                TextField(placeholder, text: $text)
-                    .padding(15)
-                    .background(Color.white)
-                    .cornerRadius(25)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 25)
-                            .stroke(Color.gray.opacity(0.3), lineWidth: 1)
-                    )
+        HStack {
+            Group {
+                if isVisible {
+                    TextField(placeholder, text: $text)
+                } else {
+                    SecureField(placeholder, text: $text)
+                }
+            }
+            Button(action: { isVisible.toggle() }) {
+                Image(systemName: isVisible ? "eye.slash" : "eye")
+                    .foregroundColor(.gray)
             }
         }
+        .padding(15)
+        .background(Color.white)
+        .cornerRadius(25)
+        .overlay(
+            RoundedRectangle(cornerRadius: 25)
+                .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+        )
+        .autocapitalization(.none)
+        .disableAutocorrection(true)
     }
 }
 
