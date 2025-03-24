@@ -1,52 +1,25 @@
 import SwiftUI
 
-final class SignUpViewModel: ObservableObject {
-    @Published var fullName: String = ""
-    @Published var email: String = ""
-    @Published var password: String = ""
-    @Published var confirmPassword: String = ""
-    @Published var isSignedUp: Bool = false
-    @Published var errorMessage: String?
-
-    // 🔹 Sign Up (Register a New User)
-    func signUp() {
-        guard !fullName.isEmpty, !email.isEmpty, !password.isEmpty, !confirmPassword.isEmpty else {
-            errorMessage = "Please fill in all fields."
-            return
-        }
-
-        guard password == confirmPassword else {
-            errorMessage = "Passwords do not match."
-            return
-        }
-
-        Task {
-            do {
-                let newUser = try await AuthenticationManager.shared.signUpUser(email: email, password: password)
-                print("🎉 Account created successfully: \(newUser.email ?? "No Email")")
-                isSignedUp = true
-            } catch {
-                errorMessage = "Error: \(error.localizedDescription)"
-            }
-        }
-    }
-}
-
 struct SignUpView: View {
-    @StateObject private var viewModel = SignUpViewModel()
     @State private var selectedTab: String = "Register"
+    @State private var fullName: String = ""
+    @State private var email: String = ""
+    @State private var password: String = ""
+    @State private var confirmPassword: String = ""
     @State private var isPasswordVisible: Bool = false
     @State private var isConfirmPasswordVisible: Bool = false
-
+    
+    
+    
     var body: some View {
         VStack {
             Spacer().frame(height: 30)
-
+            
             // Title
             Text("Create an account")
                 .font(.title2)
                 .fontWeight(.bold)
-
+            
             // Segmented Control
             HStack {
                 Button(action: {
@@ -76,14 +49,14 @@ struct SignUpView: View {
             .cornerRadius(25)
             .padding(.horizontal, 40)
             .padding(.top, 10)
-
+            
             // Input Fields
             VStack(spacing: 15) {
-                CustomTextField(placeholder: "Full Name", text: $viewModel.fullName)
-                CustomTextField(placeholder: "Email", text: $viewModel.email, keyboardType: .emailAddress)
-
+                CustomTextField(placeholder: "Full Name", text: $fullName)
+                CustomTextField(placeholder: "Email", text: $email, keyboardType: .emailAddress)
+                
                 // Password Fields
-                PasswordField(placeholder: "Password", text: $viewModel.password, isSecure: !isPasswordVisible)
+                PasswordField(placeholder: "Password", text: $password, isSecure: !isPasswordVisible)
                     .overlay(
                         HStack {
                             Spacer()
@@ -94,8 +67,8 @@ struct SignUpView: View {
                             .padding(.trailing, 15)
                         }
                     )
-
-                PasswordField(placeholder: "Confirm Password", text: $viewModel.confirmPassword, isSecure: !isConfirmPasswordVisible)
+                
+                PasswordField(placeholder: "Confirm Password", text: $confirmPassword, isSecure: !isConfirmPasswordVisible)
                     .overlay(
                         HStack {
                             Spacer()
@@ -109,58 +82,50 @@ struct SignUpView: View {
             }
             .padding(.horizontal, 20)
             .padding(.top, 10)
-
+            
             // Sign Up Button
-            Button(action: {
-                viewModel.signUp()
-            }) {
-                Text("Create account")
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.blue)
-                    .cornerRadius(25)
+            NavigationLink(destination: LoginView()) {
+                    Text("Create Account")
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.blue)
+                        .cornerRadius(25)
+                }
+                .padding(.horizontal, 20)
+                .padding(.top, 10)
+                
+                // OR Separator
+                HStack {
+                    Rectangle()
+                        .frame(height: 1)
+                        .foregroundColor(.gray.opacity(0.3))
+                    Text("or continue with")
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                    Rectangle()
+                        .frame(height: 1)
+                        .foregroundColor(.gray.opacity(0.3))
+                }
+                .padding(.horizontal, 30)
+                .padding(.vertical, 10)
+                
+                // Google & Apple Buttons
+                HStack(spacing: 20) {
+                    SocialLoginButton(imageName: "g.circle.fill", text: "Google", backgroundColor: .white, foregroundColor: .black)
+                    SocialLoginButton(imageName: "applelogo", text: "Apple", backgroundColor: .black, foregroundColor: .white)
+                }
+                .padding(.horizontal, 20)
+                
+                Spacer()
             }
-            .padding(.horizontal, 20)
-            .padding(.top, 10)
-
-            if let errorMessage = viewModel.errorMessage {
-                Text(errorMessage)
-                    .foregroundColor(.red)
-                    .font(.footnote)
-                    .padding(.top, 5)
-            }
-
-            // OR Separator
-            HStack {
-                Rectangle()
-                    .frame(height: 1)
-                    .foregroundColor(.gray.opacity(0.3))
-                Text("or continue with")
-                    .font(.caption)
-                    .foregroundColor(.gray)
-                Rectangle()
-                    .frame(height: 1)
-                    .foregroundColor(.gray.opacity(0.3))
-            }
-            .padding(.horizontal, 30)
-            .padding(.vertical, 10)
-
-            // Google & Apple Buttons
-            HStack(spacing: 20) {
-                SocialLoginButton(imageName: "g.circle.fill", text: "Google", backgroundColor: .white, foregroundColor: .black)
-                SocialLoginButton(imageName: "applelogo", text: "Apple", backgroundColor: .black, foregroundColor: .white)
-            }
-            .padding(.horizontal, 20)
-
-            Spacer()
+            .padding()
         }
-        .padding()
     }
-}
 
-// MARK: - Custom Text Fields
+
+// MARK: - Custom Text Fields (Updated: Removed inner box)
 struct CustomTextField: View {
     var placeholder: String
     @Binding var text: String
@@ -179,7 +144,7 @@ struct CustomTextField: View {
     }
 }
 
-// MARK: - Password Field
+// MARK: - Password Field (Updated: Removed inner box)
 struct PasswordField: View {
     var placeholder: String
     @Binding var text: String

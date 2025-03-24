@@ -1,4 +1,3 @@
-
 import SwiftUI
 
 final class LoginViewModel: ObservableObject {
@@ -19,13 +18,13 @@ final class LoginViewModel: ObservableObject {
                 let newUser = try await AuthenticationManager.shared.signUpUser(email: email, password: password)
                 print("🎉 Account created successfully: \(newUser.email ?? "No Email")")
                 isLoggedIn = true
+                errorMessage = nil
             } catch {
                 errorMessage = "Error: \(error.localizedDescription)"
             }
         }
     }
-
-    // Log In (Authenticate an Existing User)
+    // 🔹 Log In (Authenticate an Existing User)
     func signIn() {
         guard !email.isEmpty, !password.isEmpty else {
             errorMessage = "Please enter email and password."
@@ -35,17 +34,22 @@ final class LoginViewModel: ObservableObject {
         Task {
             do {
                 let user = try await AuthenticationManager.shared.loginUser(email: email, password: password)
-                print("✅ Logged in successfully: \(user.email ?? "No Email")")
-                isLoggedIn = true
+                print(" Logged in successfully: \(user.email ?? "No Email")")
+                DispatchQueue.main.async {
+                    self.isLoggedIn = true
+                    self.errorMessage = nil
+                }
             } catch {
-                errorMessage = "Login failed: \(error.localizedDescription)"
+                print(" Login failed: \(error.localizedDescription)")
+                DispatchQueue.main.async {
+                    self.errorMessage = "Email/Password may be incorrect."
+                }
             }
         }
     }
 }
 
-
-    
+import SwiftUI
 
 struct LoginView: View {
     @StateObject private var viewModel = LoginViewModel()
@@ -55,7 +59,7 @@ struct LoginView: View {
             Spacer().frame(height: 20)
             
             // Logo
-            Image(systemName: "shield.fill") // Replace with actual logo
+            Image(systemName: "shield.fill")
                 .resizable()
                 .scaledToFit()
                 .frame(width: 80, height: 80)
@@ -72,13 +76,13 @@ struct LoginView: View {
                 .foregroundColor(.gray)
             
             Spacer().frame(height: 20)
-                        
+            
             // Google Sign-in Button
             Button(action: {
                 // Handle Google Sign-in
             }) {
                 HStack {
-                    Image(systemName: "g.circle.fill") // Google icon
+                    Image(systemName: "g.circle.fill")
                         .resizable()
                         .frame(width: 20, height: 20)
                     Text("Log in with Google")
@@ -101,7 +105,7 @@ struct LoginView: View {
                 // Handle Apple Sign-in
             }) {
                 HStack {
-                    Image(systemName: "applelogo") // Apple logo
+                    Image(systemName: "applelogo")
                         .resizable()
                         .frame(width: 20, height: 20)
                     Text("Sign in with Apple")
@@ -131,17 +135,31 @@ struct LoginView: View {
             .padding(.horizontal, 30)
             .padding(.vertical, 10)
             
+            // Email Input
             TextField("Email", text: $viewModel.email)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .padding(.horizontal, 20)
-            
+                .autocapitalization(.none)
+                .disableAutocorrection(true)
+
+            // Password Input
             SecureField("Password", text: $viewModel.password)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .padding(.horizontal, 20)
                 .padding(.top, 5)
+                .autocapitalization(.none)
+                .disableAutocorrection(true)
+
             
+            // 🔴 Show error if login fails
+            if let error = viewModel.errorMessage {
+                Text(error)
+                    .foregroundColor(.red)
+                    .font(.caption)
+                    .padding(.top, 5)
+            }
             
-            // Forgot Password Button
+            // Forgot Password
             HStack {
                 Spacer()
                 Button(action: {
@@ -156,10 +174,9 @@ struct LoginView: View {
             }
             .padding(.vertical, 5)
             
-            Spacer()
-                .padding(.vertical,5)
+            Spacer().padding(.vertical, 5)
             
-            // Login Button
+            // 🔹 Login Button
             Button(action: {
                 viewModel.signIn()
             }) {
