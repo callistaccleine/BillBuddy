@@ -187,6 +187,10 @@ struct LoginView: View {
             .padding(.horizontal, 20)
             .padding(.top, 10)
 
+            NavigationLink(destination: HomeView(),
+                           isActive: $viewModel.isLoggedIn,
+                           label: { EmptyView() })
+
             // Sign-up link
             HStack {
                 Text("Don’t have an account?")
