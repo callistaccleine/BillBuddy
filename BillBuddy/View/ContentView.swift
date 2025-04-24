@@ -29,8 +29,8 @@ struct ContentView: View {
                 }
                 Section (header: Text("Select a tip amount (%)")){
                     Picker ("Tip percentage", selection:$tipIndex){
-                        ForEach(0 ..< tipPercentages.count){
-                            Text("\(tipPercentages[$0])%")
+                        ForEach(tipPercentages.indices, id: \.self) { index in
+                            Text("\(tipPercentages[index])%")
                         }
                     }.pickerStyle(SegmentedPickerStyle())
                     
