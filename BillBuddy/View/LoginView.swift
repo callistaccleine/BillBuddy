@@ -1,5 +1,6 @@
 import SwiftUI
 
+@MainActor
 final class LoginViewModel: ObservableObject {
     @Published var email: String = ""
     @Published var password: String = ""
@@ -34,15 +35,15 @@ final class LoginViewModel: ObservableObject {
             do {
                 let user = try await AuthenticationManager.shared.loginUser(email: email, password: password)
                 print(" Logged in successfully: \(user.email ?? "No Email")")
-                DispatchQueue.main.async {
-                    self.isLoggedIn = true
-                    self.errorMessage = nil
-                }
+                DispatchQueue.main.async { [self] in
+                            isLoggedIn = true
+                            errorMessage = nil
+                        }
             } catch {
                 print(" Login failed: \(error.localizedDescription)")
-                DispatchQueue.main.async {
-                    self.errorMessage = "Email/Password may be incorrect."
-                }
+                DispatchQueue.main.async { [self] in
+                            errorMessage = "Email/Password may be incorrect."
+                        }
             }
         }
     }

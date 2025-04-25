@@ -33,6 +33,7 @@ struct BillBuddyApp: App {
                 ContentView()
                 HomeView()
                 ScanView()
+                UploadImage()
                 ManualEntryView()
             }
         }

@@ -11,6 +11,7 @@ import VisionKit
 struct ScanView: View {
     @State private var showScanner = false
     @State private var scannedImage: UIImage?
+    @State private var showImagePicker = false
     @State private var isProcessingImage = false
     @State private var showManualEntry = false
 
@@ -38,48 +39,65 @@ struct ScanView: View {
             Spacer()
 
             // Action buttons
-                        VStack(spacing: 16) {
-                            // Scan Receipt Button
-                            Button {
-                                showScanner = true
-                            } label: {
-                                HStack {
-                                    Image(systemName: "camera")
-                                        .font(.system(size: 20))
-                                    Text("Scan Receipt")
-                                        .font(.system(size: 20, weight: .medium))
-                                }
-                                .frame(maxWidth: .infinity)
-                                .padding()
-                                .background(Color.blue)
-                                .foregroundColor(.white)
-                                .cornerRadius(12)
-                            }
-                            
-                            // Enter Manually Button
-                            Button {
-                                showManualEntry = true
-                            } label: {
-                                HStack {
-                                    Image(systemName: "pencil.line")
-                                        .font(.system(size: 20))
-                                    Text("Enter Manually")
-                                        .font(.system(size: 20, weight: .medium))
-                                }
-                                .frame(maxWidth: .infinity)
-                                .padding()
-                                .background(Color.white)
-                                .foregroundColor(.black)
-                                .cornerRadius(12)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 12)
-                                        .stroke(Color.gray.opacity(0.3), lineWidth: 1)
-                                )
-                            }
-                        }
-                        .padding(.horizontal, 20)
-                        
-                        Spacer()
+            VStack(spacing: 16) {
+                // Scan Receipt Button
+                Button {
+                    showScanner = true
+                } label: {
+                    HStack {
+                        Image(systemName: "camera")
+                            .font(.system(size: 20))
+                        Text("Scan Receipt")
+                            .font(.system(size: 20, weight: .medium))
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(12)
+                }
+                // Upload Receipt Button
+                Button {
+                    showImagePicker = true
+                } label: {
+                    HStack {
+                        Image(systemName: "photo")
+                            .font(.system(size: 20))
+                        Text("Upload Receipt")
+                            .font(.system(size: 20, weight: .medium))
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color.white)
+                    .foregroundColor(.black)
+                    .cornerRadius(12)
+                    .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.gray.opacity(0.3)))
+                }
+                
+                // Enter Manually Button
+                Button {
+                    showManualEntry = true
+                } label: {
+                    HStack {
+                        Image(systemName: "pencil.line")
+                            .font(.system(size: 20))
+                        Text("Enter Manually")
+                            .font(.system(size: 20, weight: .medium))
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color.white)
+                    .foregroundColor(.black)
+                    .cornerRadius(12)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                    )
+                }
+            }
+            .padding(.horizontal, 20)
+            
+            Spacer()
         }
         .sheet(isPresented: $showScanner) {
             DocumentScannerView { result in
@@ -93,6 +111,9 @@ struct ScanView: View {
                 }
                 showScanner = false
             }
+        }
+        .sheet(isPresented: $showImagePicker) {
+            UploadImage()
         }
         .sheet(isPresented: $showManualEntry) {
             ManualEntryView()
