@@ -27,8 +27,14 @@ struct BillBuddyApp: App {
         WindowGroup {
             NavigationStack {
                 WelcomeView()
-                HomeView()
-                ContentView()
+                //SignUpView()
+                //LoginView()
+                //HomeView()
+                //ContentView()
+                //HomeView()
+                //ScanView()
+                //UploadImage()
+                //ManualEntryView()
             }
         }
     }
