@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import UIKit
+import VisionKit
 
 struct ReceiptReviewView: View {
     @Environment(\.dismiss) private var dismiss

@@ -7,6 +7,7 @@
 
 import SwiftUI
 import VisionKit
+import UIKit
 
 struct ManualEntryView: View {
     @Environment(\.dismiss) private var dismiss
@@ -23,7 +24,7 @@ struct ManualEntryView: View {
                         HStack {
                             Text(item.name)
                             Spacer()
-                            Text("$\(String(format: "%.2f", item.price))")
+                            Text("A$\(String(format: "%.2f", item.price))")
                         }
                     }
                     .onDelete(perform: deleteItems)
@@ -53,7 +54,7 @@ struct ManualEntryView: View {
                     
                     Spacer()
                     
-                    Text(totalAmount, format: .currency(code: "USD"))
+                    Text(totalAmount, format: .currency(code: "AUD"))
                         .font(.headline)
                 }
                 .padding()
