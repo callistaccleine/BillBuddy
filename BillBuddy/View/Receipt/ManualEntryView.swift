@@ -15,6 +15,9 @@ struct ManualEntryView: View {
     @State private var newItemName: String = ""
     @State private var newItemPrice: String = ""
     @State private var navigateToReview = false
+    @State private var selectedFriends: [String] = []
+    @State private var availableFriends = ["Alex", "Bella", "Charlie", "Daniel"] // Temporary static list
+    @State private var showFriendPicker = false
     
     var body: some View {
         NavigationView {
@@ -59,6 +62,14 @@ struct ManualEntryView: View {
                 }
                 .padding()
                 
+                Button("Choose Friends") {
+                    showFriendPicker = true
+                }
+                .frame(maxWidth: .infinity)
+                .padding()
+                .background(Color.gray.opacity(0.2))
+                .cornerRadius(12)
+                
                 Button("Continue") {
                     navigateToReview = true
                 }
@@ -80,6 +91,12 @@ struct ManualEntryView: View {
             }
             .navigationDestination(isPresented: $navigateToReview) {
                 ReceiptReviewView(receiptItems: receiptItems)
+            }
+            .sheet(isPresented: $showFriendPicker) {
+                FriendPickerView(
+                    availableFriends: availableFriends,
+                    selectedFriends: $selectedFriends
+                )
             }
         }
     }
