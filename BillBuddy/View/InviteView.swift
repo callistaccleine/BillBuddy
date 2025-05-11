@@ -41,4 +41,7 @@ struct InviteView: View {
         showAlert = true
     }
 }
+#Preview {
+    InviteView()
+}
 

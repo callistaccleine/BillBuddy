@@ -1,4 +1,5 @@
 import SwiftUI
+import FirebaseFirestore
 
 final class SignUpViewModel: ObservableObject {
     @Published var fullName: String = ""
@@ -20,20 +21,30 @@ final class SignUpViewModel: ObservableObject {
         }
 
         Task {
-            do {
-                let user = try await AuthenticationManager.shared.signUpUser(email: email, password: password)
-                print("Registered: \(user.email ?? "")")
-                DispatchQueue.main.async {
-                    self.isRegistered = true
-                }
-            } catch {
-                DispatchQueue.main.async {
-                    self.errorMessage = "Error: \(error.localizedDescription)"
+                do {
+                    let user = try await AuthenticationManager.shared.signUpUser(email: email, password: password)
+
+                    // Store full name to Firestore and UserDefaults
+                    let uid = user.uid
+                    let db = Firestore.firestore()
+                    try await db.collection("users").document(uid).setData([
+                        "fullName": fullName,
+                        "email": email
+                    ])
+
+                    UserDefaults.standard.set(fullName, forKey: "currentUserName")
+
+                    DispatchQueue.main.async {
+                        self.isRegistered = true
+                    }
+                } catch {
+                    DispatchQueue.main.async {
+                        self.errorMessage = "Error: \(error.localizedDescription)"
+                    }
                 }
             }
         }
     }
-}
 
 struct SignUpView: View {
     @StateObject private var viewModel = SignUpViewModel()

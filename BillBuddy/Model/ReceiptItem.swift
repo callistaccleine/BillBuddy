@@ -13,4 +13,5 @@ struct ReceiptItem: Identifiable {
     var name: String
     var price: Double
     var quantity: Int = 1
+    var assignedFriends: [String] = []
 }
