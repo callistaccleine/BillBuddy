@@ -6,321 +6,119 @@
 //
 
 import SwiftUI
-import UIKit
-import VisionKit
 
 struct ReceiptReviewView: View {
-    @Environment(\.dismiss) private var dismiss
-    @State private var receipt: Receipt
-    @State private var originalImage: UIImage?
-    @State private var showingImagePreview = false
-    @State private var editingItem: ReceiptItem?
-    @State private var isAddingNewItem = false
-    @State private var newItem = ReceiptItem(name: "", price: 0.0)
-    @State private var showDatePicker = false
-    
-    init(extractedText: String, originalImage: UIImage?) {
-        _receipt = State(initialValue: Receipt.parseFromOCR(text: extractedText))
-        _originalImage = State(initialValue: originalImage)
+    let receiptItems: [ReceiptItem]
+
+    private var total: Double {
+        receiptItems.reduce(0) { result, item in
+            result + (item.price * Double(item.quantity))
+        }
     }
-    
-    init(receiptItems: [ReceiptItem]) {
-        // Create a receipt with the provided items
-        var newReceipt = Receipt()
-        newReceipt.items = receiptItems
-        
-        // Initialize state variables
-        _receipt = State(initialValue: newReceipt)
-        _originalImage = State(initialValue: nil)
+
+    private var friendTotals: [String: Double] {
+        var totals: [String: Double] = [:]
+
+        for item in receiptItems {
+            let share = item.price * Double(item.quantity)
+            let friends = item.assignedFriends
+            guard !friends.isEmpty else { continue }
+            let splitAmount = share / Double(friends.count)
+
+            for friend in friends {
+                totals[friend, default: 0.0] += splitAmount
+            }
+        }
+
+        return totals
     }
-    
+
+    private func initials(for name: String) -> String {
+        let parts = name.split(separator: " ")
+        let first = parts.first?.prefix(1) ?? ""
+        let last = parts.count > 1 ? parts.last?.prefix(1) ?? "" : ""
+        return String(first + last)
+    }
+
     var body: some View {
-            NavigationView {
-                ScrollView {
-                    VStack(spacing: 20) {
-                        // Receipt Image Thumbnail
-                        if let image = originalImage {
-                            Image(uiImage: image)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(height: 120)
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .stroke(Color.gray.opacity(0.3), lineWidth: 1)
-                                )
-                                .onTapGesture {
-                                    showingImagePreview = true
-                                }
-                        } else {
-                            RoundedRectangle(cornerRadius: 8)
-                                .fill(Color.gray.opacity(0.1))
-                                .frame(height: 120)
-                                .overlay(
-                                    Text("No image available")
-                                        .foregroundColor(.gray)
-                                )
-                        }
-                        
-                        // Date Section
-                        VStack(alignment: .leading, spacing: 5) {
-                            Text("Receipt Date")
-                                .font(.subheadline)
-                                .foregroundColor(.gray)
-                            
-                            HStack {
-                                Text(formattedDate)
-                                Spacer()
-                                Button(action: {
-                                    showDatePicker.toggle()
-                                }) {
-                                    Image(systemName: "calendar")
-                                        .foregroundColor(.blue)
-                                }
-                            }
-                            .padding()
-                            .background(Color.white)
-                            .cornerRadius(8)
+        VStack(spacing: 20) {
+            Text("Split the Bill")
+                .font(.title2)
+                .fontWeight(.semibold)
+
+            Text("Share in total \(friendTotals.count) Friends")
+                .font(.subheadline)
+                .foregroundColor(.gray)
+
+            ScrollView {
+                ForEach(friendTotals.sorted(by: { $0.key < $1.key }), id: \.key) { friend, amount in
+                    HStack(spacing: 16) {
+                        Circle()
+                            .fill(Color.blue.opacity(0.2))
+                            .frame(width: 40, height: 40)
                             .overlay(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                                Text(initials(for: friend))
+                                    .font(.subheadline)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.blue)
                             )
-                            
-                            if showDatePicker {
-                                DatePicker("", selection: $receipt.date, displayedComponents: [.date])
-                                    .datePickerStyle(.wheel)
-                                    .labelsHidden()
-                                    .padding()
-                                    .background(Color.white)
-                                    .cornerRadius(8)
-                                    .transition(.opacity)
-                            }
+
+                        VStack(alignment: .leading) {
+                            Text(friend)
+                                .fontWeight(.medium)
+                            Text(String(format: "%.0f%%", 100 * (amount / total)))
+                                .font(.caption)
+                                .foregroundColor(.gray)
                         }
-                        
-                        // Items Section
-                        VStack(alignment: .leading, spacing: 10) {
-                            Text("Items")
-                                .font(.headline)
-                                .padding(.top, 10)
-                            
-                            ForEach(receipt.items) { item in
-                                itemCard(item)
-                            }
-                            
-                            // Add Item Button
-                            Button(action: {
-                                isAddingNewItem = true
-                                newItem = ReceiptItem(name: "", price: 0.0)
-                            }) {
-                                HStack {
-                                    Spacer()
-                                    Image(systemName: "plus.circle.fill")
-                                    Text("Add Item")
-                                    Spacer()
-                                }
-                                .padding()
-                                .background(
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .stroke(Color.blue, style: StrokeStyle(lineWidth: 1, dash: [4]))
-                                )
-                                .foregroundColor(.blue)
-                            }
-                            
-                            // Total Section
-                            Divider()
-                                .padding(.vertical)
-                            
-                            HStack {
-                                Text("Subtotal")
-                                    .font(.headline)
-                                Spacer()
-                                Text(String(format: "$%.2f", receipt.subtotal))
-                                    .font(.headline)
-                            }
-                            .padding([.top, .horizontal])
-                            
-                            // Next Button
-                            Button(action: {
-                                // Process the validated receipt and continue
-                                dismiss()
-                            }) {
-                                Text("Continue")
-                                    .font(.headline)
-                                    .foregroundColor(.white)
-                                    .frame(maxWidth: .infinity)
-                                    .padding()
-                                    .background(Color.blue)
-                                    .cornerRadius(12)
-                            }
-                            .padding(.top)
-                        }
+
+                        Spacer()
+
+                        Text(String(format: "$%.2f", amount))
+                            .fontWeight(.semibold)
                     }
-                    .padding()
-                }
-                .navigationBarTitle("Review Receipt", displayMode: .inline)
-                .navigationBarItems(
-                    leading: Button("Cancel") { dismiss() },
-                    trailing: Button("Next") {
-                        // Process the validated receipt and continue
-                        dismiss()
-                    }
-                )
-                .sheet(isPresented: $showingImagePreview) {
-                    if let image = originalImage {
-                        ImagePreviewView(image: image)
-                    }
-                }
-                .sheet(item: $editingItem) { item in
-                    ItemEditView(item: item) { updatedItem in
-                        if let index = receipt.items.firstIndex(where: { $0.id == updatedItem.id }) {
-                            receipt.items[index] = updatedItem
-                        }
-                    } onDelete: { itemToDelete in
-                        receipt.items.removeAll(where: { $0.id == itemToDelete.id })
-                    }
-                }
-                .sheet(isPresented: $isAddingNewItem) {
-                    ItemEditView(item: newItem, isNew: true) { item in
-                        receipt.items.append(item)
-                    } onDelete: { _ in
-                        // Do nothing for new items
-                    }
+                    .padding(.vertical, 8)
+                    .padding(.horizontal)
                 }
             }
-        }
-        
-        private var formattedDate: String {
-            let formatter = DateFormatter()
-            formatter.dateStyle = .medium
-            return formatter.string(from: receipt.date)
-        }
-        
-        private func itemCard(_ item: ReceiptItem) -> some View {
+
+            Divider()
+
             HStack {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(item.name)
-                        .font(.body)
-                        .fontWeight(.medium)
-                    
-                    Text("Quantity: \(item.quantity)")
-                        .font(.subheadline)
-                        .foregroundColor(.gray)
-                }
-                
+                Text("Total Bill")
+                    .fontWeight(.bold)
                 Spacer()
-                
-                Text(String(format: "$%.2f", item.price))
-                    .fontWeight(.semibold)
-                
-                Button(action: {
-                    editingItem = item
-                }) {
-                    Image(systemName: "pencil.circle.fill")
-                        .foregroundColor(.blue)
-                        .font(.title3)
-                }
-                .padding(.leading, 8)
+                Text(String(format: "$%.2f", total))
+                    .fontWeight(.bold)
             }
-            .padding()
-            .background(Color.white)
-            .cornerRadius(8)
-            .overlay(
-                RoundedRectangle(cornerRadius: 8)
-                    .stroke(Color.gray.opacity(0.3), lineWidth: 1)
-            )
-        }
-    }
+            .padding(.horizontal)
 
-    struct ImagePreviewView: View {
-        @Environment(\.dismiss) private var dismiss
-        let image: UIImage
-        
-        var body: some View {
-            NavigationView {
-                VStack {
-                    Image(uiImage: image)
-                        .resizable()
-                        .scaledToFit()
+            Button(action: {
+                // Send request logic here
+            }) {
+                HStack {
+                    Image(systemName: "paperplane.fill")
+                    Text("Send Request")
+                        .fontWeight(.bold)
                 }
-                .navigationBarTitle("Receipt Image", displayMode: .inline)
-                .navigationBarItems(trailing: Button("Done") { dismiss() })
+                .frame(maxWidth: .infinity)
+                .padding()
+                .background(Color.blue)
+                .foregroundColor(.white)
+                .cornerRadius(12)
             }
+            .padding(.horizontal)
         }
+        .padding()
+        //.navigationTitle("Review Split")
     }
+}
 
-    struct ItemEditView: View {
-        @Environment(\.dismiss) private var dismiss
-        @State private var editedItem: ReceiptItem
-        let isNew: Bool
-        let onSave: (ReceiptItem) -> Void
-        let onDelete: (ReceiptItem) -> Void
-        
-        init(item: ReceiptItem, isNew: Bool = false, onSave: @escaping (ReceiptItem) -> Void, onDelete: @escaping (ReceiptItem) -> Void) {
-            _editedItem = State(initialValue: item)
-            self.isNew = isNew
-            self.onSave = onSave
-            self.onDelete = onDelete
-        }
-        
-        var body: some View {
-            NavigationView {
-                Form {
-                    Section(header: Text("Item Details")) {
-                        TextField("Item name", text: $editedItem.name)
-                        
-                        Stepper("Quantity: \(editedItem.quantity)", value: $editedItem.quantity, in: 1...99)
-                        
-                        HStack {
-                            Text("Price")
-                            Spacer()
-                            TextField("0.00", value: $editedItem.price, formatter: NumberFormatter.currencyFormatter)
-                                .keyboardType(.decimalPad)
-                                .multilineTextAlignment(.trailing)
-                        }
-                    }
-                    
-                    if !isNew {
-                        Section {
-                            Button(action: {
-                                onDelete(editedItem)
-                                dismiss()
-                            }) {
-                                HStack {
-                                    Spacer()
-                                    Text("Delete Item")
-                                        .foregroundColor(.red)
-                                    Spacer()
-                                }
-                            }
-                        }
-                    }
-                }
-                .navigationBarTitle(isNew ? "Add Item" : "Edit Item", displayMode: .inline)
-                .navigationBarItems(
-                    leading: Button("Cancel") { dismiss() },
-                    trailing: Button("Save") {
-                        onSave(editedItem)
-                        dismiss()
-                    }
-                    .disabled(editedItem.name.isEmpty)
-                )
-            }
-        }
-    }
-
-    // Number formatter for currency
-    extension NumberFormatter {
-        static var currencyFormatter: NumberFormatter {
-            let formatter = NumberFormatter()
-            formatter.numberStyle = .currency
-            formatter.currencySymbol = "$"
-            return formatter
-        }
-    }
 
 #Preview {
     ReceiptReviewView(
-        extractedText: "Coffee $4.50\nBagel $3.25",
-        originalImage: nil
+        receiptItems: [
+            ReceiptItem(name: "Coffee", price: 4.50, quantity: 1, assignedFriends: ["Alex"]),
+            ReceiptItem(name: "Bagel", price: 3.25, quantity: 1, assignedFriends: ["Bella"])
+        ]
     )
 }

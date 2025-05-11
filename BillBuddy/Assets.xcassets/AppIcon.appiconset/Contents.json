@@ -1,7 +1,7 @@
 {
   "images" : [
     {
-      "filename" : "Narrative Talks.jpg",
+      "filename" : "Minimalist MODUS Logo Design.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
@@ -13,7 +13,7 @@
           "value" : "dark"
         }
       ],
-      "filename" : "Narrative Talks 1.jpg",
+      "filename" : "Minimalist MODUS Logo Design 1.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
@@ -25,66 +25,64 @@
           "value" : "tinted"
         }
       ],
-      "filename" : "Narrative Talks 2.jpg",
+      "filename" : "Minimalist MODUS Logo Design 2.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
     },
     {
+      "filename" : "Icon-16.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "16x16"
     },
     {
-      "filename" : "Narrative Talks 9.jpg",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "16x16"
     },
     {
-      "filename" : "Narrative Talks 10.jpg",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "32x32"
     },
     {
-      "filename" : "Narrative Talks 11.jpg",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "32x32"
     },
     {
-      "filename" : "Narrative Talks 8.jpg",
+      "filename" : "Icon-128.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "128x128"
     },
     {
-      "filename" : "Narrative Talks 6.jpg",
+      "filename" : "Icon-256.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "128x128"
     },
     {
-      "filename" : "Narrative Talks 7.jpg",
+      "filename" : "Icon-256 1.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "256x256"
     },
     {
-      "filename" : "Narrative Talks 4.jpg",
+      "filename" : "Icon-512.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "256x256"
     },
     {
-      "filename" : "Narrative Talks 5.jpg",
+      "filename" : "Icon-512 1.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "512x512"
     },
     {
-      "filename" : "Narrative Talks 3.jpg",
+      "filename" : "Icon-1024.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "512x512"

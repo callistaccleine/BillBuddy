@@ -2,7 +2,7 @@ import SwiftUI
 
 struct HomeView: View {
     // Sample User Data
-    let userName = "Bella" // Change this dynamically
+    @AppStorage("currentUserName") private var userName: String = "User"
     let balance: Double = 50.00
 
     let recentSplits: [SplitBill] = [
@@ -68,7 +68,7 @@ struct HomeView: View {
                         }
                         .padding()
                         .frame(width: 350, height: 100)
-                        .background(Color.black)
+                        .background(Color.blue)
                         .cornerRadius(15)
                     }
                     .padding(.horizontal)
