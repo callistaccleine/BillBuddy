@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct HomeView: View {
+    @StateObject private var store = FriendStore()
     // Sample User Data
     @AppStorage("currentUserName") private var userName: String = "User"
     let balance: Double = 50.00
@@ -76,8 +77,8 @@ struct HomeView: View {
                     
                     // MARK: - Quick Action Buttons
                     HStack(spacing: 30) {
-                        QuickActionButton(icon: "arrow.left.arrow.right", label: "Transfer", destination: AnyView(Text("Transfer Page")))
-                        QuickActionButton(icon: "arrow.clockwise", label: "Request", destination: AnyView(Text("Request Page")))
+                        QuickActionButton(icon: "arrow.left.arrow.right", label: "Transfer", destination: AnyView(FriendListView().environmentObject(store)))
+                        QuickActionButton(icon: "arrow.clockwise", label: "Request", destination: AnyView(FriendListView().environmentObject(store)))
                         QuickActionButton(icon: "doc.text", label: "Split Bill", destination: AnyView(ScanView()))
                         QuickActionButton(icon: "person.badge.plus", label: "Invite", destination: AnyView(InviteView()))
                     }
@@ -225,6 +226,9 @@ struct RecentSplitBillView: View {
 
 
 // MARK: - Preview
-#Preview {
-    HomeView()
+struct HomeView_Previews: PreviewProvider {
+    static var previews: some View {
+        HomeView()
+            .environmentObject(FriendStore())
+    }
 }
