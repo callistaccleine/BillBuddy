@@ -34,7 +34,6 @@ struct BillBuddyApp: App {
                 //HomeView()
                 //ScanView()
                 //UploadImage()
-                //ManualEntryView()
             }
         }
     }
