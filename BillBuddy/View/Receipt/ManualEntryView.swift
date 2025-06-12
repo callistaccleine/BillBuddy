@@ -21,6 +21,10 @@ struct ManualEntryView: View {
     @State private var currentlySelectedFriend: String? = nil
     @FocusState private var isInputFocused: Bool
     
+    init(initialItems: [ReceiptItem] = []) {
+        _receiptItems = State(initialValue: initialItems)
+      }
+    
     var body: some View {
         NavigationView {
             ScrollViewReader { scrollProxy in

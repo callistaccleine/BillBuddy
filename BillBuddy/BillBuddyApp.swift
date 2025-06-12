@@ -22,6 +22,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 @main
 struct BillBuddyApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
+    @AppStorage("isLoggedIn") private var isLoggedIn = false
 
     var body: some Scene {
         WindowGroup {
