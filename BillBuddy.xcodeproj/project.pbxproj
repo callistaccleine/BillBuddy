@@ -44,6 +44,16 @@
 		64E2B7342D7F1D1F00A2E57B /* BillBuddyUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BillBuddyUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		64C422FB2DFAF47E004EF373 /* Exceptions for "BillBuddy" folder in "BillBuddy" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 64E2B7182D7F1D1D00A2E57B /* BillBuddy */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		244BA6DD2D88000A0012FE51 /* Authentication */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
@@ -52,6 +62,9 @@
 		};
 		64E2B71B2D7F1D1D00A2E57B /* BillBuddy */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				64C422FB2DFAF47E004EF373 /* Exceptions for "BillBuddy" folder in "BillBuddy" target */,
+			);
 			path = BillBuddy;
 			sourceTree = "<group>";
 		};
@@ -454,6 +467,7 @@
 				DEVELOPMENT_TEAM = N4UB4344HA;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = BillBuddy/Info.plist;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -494,6 +508,7 @@
 				DEVELOPMENT_TEAM = N4UB4344HA;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = BillBuddy/Info.plist;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;

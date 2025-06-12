@@ -79,7 +79,7 @@ struct HomeView: View {
                         QuickActionButton(icon: "arrow.left.arrow.right", label: "Transfer", destination: AnyView(Text("Transfer Page")))
                         QuickActionButton(icon: "arrow.clockwise", label: "Request", destination: AnyView(Text("Request Page")))
                         QuickActionButton(icon: "doc.text", label: "Split Bill", destination: AnyView(ScanView()))
-                        QuickActionButton(icon: "square.grid.2x2", label: "More", destination: AnyView(Text("More Options")))
+                        QuickActionButton(icon: "person.badge.plus", label: "Invite", destination: AnyView(InviteView()))
                     }
                     .padding(.top, 10)
 
