@@ -7,6 +7,7 @@
 import SwiftUI
 
 struct ScanView: View {
+    @State private var parsedItems: [ReceiptItem] = []
     @State private var showScanner = false
     @State private var scannedImage: UIImage?
     @State private var showImagePicker = false
@@ -108,7 +109,7 @@ struct ScanView: View {
             UploadImage()
         }
         .sheet(isPresented: $showManualEntry) {
-            ManualEntryView()
+            ConfirmParsedItemsView(receiptItems: parsedItems)
         }
     }
 }

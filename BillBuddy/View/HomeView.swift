@@ -1,14 +1,15 @@
 import SwiftUI
+import FirebaseAuth
 
 struct HomeView: View {
-    // Sample User Data
-    @AppStorage("currentUserName") private var userName: String = "User"
+    @StateObject private var store = FriendStore()
+    @State private var userName: String = Auth.auth().currentUser?.displayName ?? ""
     let balance: Double = 50.00
 
-    let recentSplits: [SplitBill] = [
-        SplitBill(id: 1, place: "Katsuretsu", amount: 43.27, people: ["Alex", "Emma", "John", "Sophia"]),
-        SplitBill(id: 2, place: "Little Rouge", amount: 23.50, people: ["Mike", "Eleanor"])
-    ]
+    let recentItems: [ReceiptItem] = [
+            ReceiptItem(name: "Katsuretsu",  price: 43.27, assignedFriends: ["Michelle Marcelline", "Callista"]),
+            ReceiptItem(name: "Little Rouge", price: 23.50, assignedFriends: ["Kendall", "Whissely Wijaya"])
+        ]
 
     var body: some View {
         NavigationStack {
@@ -39,6 +40,16 @@ struct HomeView: View {
                         }
                     }
                     .padding(.horizontal)
+                    .onAppear {
+                        if let user = Auth.auth().currentUser {
+                          // prefer displayName, else use email before “@”
+                          if let name = user.displayName, !name.isEmpty {
+                            userName = name
+                          } else if let email = user.email {
+                            userName = email.components(separatedBy: "@").first ?? "User"
+                          }
+                        }
+                      }
                     
                     // MARK: - Balance Card
                     VStack {
@@ -76,8 +87,8 @@ struct HomeView: View {
                     
                     // MARK: - Quick Action Buttons
                     HStack(spacing: 30) {
-                        QuickActionButton(icon: "arrow.left.arrow.right", label: "Transfer", destination: AnyView(Text("Transfer Page")))
-                        QuickActionButton(icon: "arrow.clockwise", label: "Request", destination: AnyView(Text("Request Page")))
+                        QuickActionButton(icon: "arrow.left.arrow.right", label: "Transfer", destination: AnyView(FriendListView().environmentObject(store)))
+                        QuickActionButton(icon: "arrow.clockwise", label: "Request", destination: AnyView(FriendListView().environmentObject(store)))
                         QuickActionButton(icon: "doc.text", label: "Split Bill", destination: AnyView(ScanView()))
                         QuickActionButton(icon: "person.badge.plus", label: "Invite", destination: AnyView(InviteView()))
                     }
@@ -97,8 +108,9 @@ struct HomeView: View {
                         }
                         .padding(.horizontal)
 
-                        ForEach(recentSplits) { split in
-                            RecentSplitBillView(split: split)
+                        ForEach(recentItems) { item in
+                            RecentSplitBillView(item: item)
+                                .environmentObject(store)
                         }
                     }
                     .padding(.bottom)
@@ -132,99 +144,11 @@ struct QuickActionButton: View {
     }
 }
 
-// MARK: - Profile Initials View
-struct ProfileInitialsView: View {
-    let name: String
-    
-    var body: some View {
-        let initial = name.prefix(1).uppercased()
-        
-        Text(initial)
-            .font(.title)
-            .fontWeight(.bold)
-            .frame(width: 50, height: 50)
-            .background(Color.blue.opacity(0.3))
-            .clipShape(Circle())
-            .foregroundColor(.white)
-    }
-}
-
-// MARK: - Models
-struct SplitBill: Identifiable {
-    let id: Int
-    let place: String
-    let amount: Double
-    let people: [String]
-}
-
-struct Transaction: Identifiable {
-    let id: Int
-    let friend: String
-    let description: String
-    let amount: Double
-    let date: String
-}
-
-// MARK: - Components
-struct RecentSplitBillView: View {
-    let split: SplitBill
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Text(split.place)
-                    .font(.headline)
-                Spacer()
-                Image(systemName: "square.and.arrow.up") // Share icon
-            }
-            
-            HStack {
-                Text("Total Bill: ")
-                    .font(.subheadline)
-                Text("$\(String(format: "%.2f", split.amount))")
-                    .font(.subheadline)
-                    .bold()
-            }
-            
-            HStack {
-                Text("Split with:")
-                    .font(.subheadline)
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 8) {
-                        ForEach(split.people, id: \.self) { person in
-                            Text(person.prefix(1))
-                                .font(.footnote)
-                                .fontWeight(.medium)
-                                .foregroundColor(.white)
-                                .frame(width: 28, height: 28)
-                                .background(Color.blue.opacity(0.3))
-                                .clipShape(Circle())
-                        }
-                        Image(systemName: "plus.circle.fill")
-                            .foregroundColor(.gray)
-                    }
-                }
-            }
-            
-            NavigationLink(destination: ContentView()) {
-                Text("Split Now")
-                    .font(.headline)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.blue)
-                    .foregroundColor(.white)
-                    .cornerRadius(10)
-            }
-        }
-        .padding()
-        .background(Color.white)
-        .cornerRadius(12)
-        .shadow(color: .gray.opacity(0.2), radius: 5)
-    }
-}
-
 
 // MARK: - Preview
-#Preview {
-    HomeView()
+struct HomeView_Previews: PreviewProvider {
+    static var previews: some View {
+        HomeView()
+            .environmentObject(FriendStore())
+    }
 }

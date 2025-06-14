@@ -1,7 +1,7 @@
 {
   "images" : [
     {
-      "filename" : "Minimalist MODUS Logo Design.png",
+      "filename" : "Proposal BillBuddy Logo 1.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
@@ -13,7 +13,7 @@
           "value" : "dark"
         }
       ],
-      "filename" : "Minimalist MODUS Logo Design 1.png",
+      "filename" : "Proposal BillBuddy Logo 2.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
@@ -25,13 +25,12 @@
           "value" : "tinted"
         }
       ],
-      "filename" : "Minimalist MODUS Logo Design 2.png",
+      "filename" : "Proposal BillBuddy Logo 3.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
     },
     {
-      "filename" : "Icon-16.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "16x16"
@@ -52,37 +51,37 @@
       "size" : "32x32"
     },
     {
-      "filename" : "Icon-128.png",
+      "filename" : "Proposal%20BillBuddy%20Logo%201_resized copy 2.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "128x128"
     },
     {
-      "filename" : "Icon-256.png",
+      "filename" : "Proposal%20BillBuddy%20Logo%201_resized copy 1.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "128x128"
     },
     {
-      "filename" : "Icon-256 1.png",
+      "filename" : "Proposal%20BillBuddy%20Logo%201_resized copy.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "256x256"
     },
     {
-      "filename" : "Icon-512.png",
+      "filename" : "Proposal%20BillBuddy%20Logo%201_resized 1.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "256x256"
     },
     {
-      "filename" : "Icon-512 1.png",
+      "filename" : "Proposal%20BillBuddy%20Logo%201_resized.png",
       "idiom" : "mac",
       "scale" : "1x",
       "size" : "512x512"
     },
     {
-      "filename" : "Icon-1024.png",
+      "filename" : "Proposal BillBuddy Logo 4.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "512x512"
