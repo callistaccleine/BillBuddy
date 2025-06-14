@@ -14,5 +14,12 @@ class FriendStore: ObservableObject {
         Friend(id: UUID(), name: "Kendall",            username: "Kendall2021",       avatarURL: nil),
         Friend(id: UUID(), name: "Catherine Jennifer",username: "CatherineJennifer",  avatarURL: nil)
     ]
+    
+    func markAsPaid(id: UUID) {
+        // Remove the friend from the unpaid list (or update a flag, if you prefer)
+        if let idx = friends.firstIndex(where: { $0.id == id }) {
+            friends.remove(at: idx)
+        }
+    }
 }
 
