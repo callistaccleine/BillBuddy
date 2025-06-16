@@ -31,12 +31,10 @@ struct HomeView: View {
                         
                         Spacer()
                         
-                        Button(action: {
-                            print("Menu tapped")
-                        }) {
+                        NavigationLink(destination: ProfileView()) {
                             Image(systemName: "line.horizontal.3")
                                 .font(.title)
-                                .foregroundColor(.black)
+                                .foregroundColor(.primary)
                         }
                     }
                     .padding(.horizontal)
