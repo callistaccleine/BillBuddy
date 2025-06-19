@@ -24,7 +24,6 @@ struct ProfileView: View {
     @AppStorage("prefDailyReminders") private var dailyReminders: Bool = true
 
     @State private var showingLogoutError = false
-    @State private var shouldRedirectToLogin = false
 
     var body: some View {
         ScrollView {
@@ -108,7 +107,6 @@ struct ProfileView: View {
                 do {
                     try Auth.auth().signOut()
                     isLoggedIn = false
-                    shouldRedirectToLogin = true
                 } catch {
                     showingLogoutError = true
                 }
