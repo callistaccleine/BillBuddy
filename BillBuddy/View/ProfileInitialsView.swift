@@ -13,9 +13,9 @@ struct ProfileInitialsView: View {
         let initial = name.prefix(1).uppercased()
         
         Text(initial)
-            .font(.title)
+            .font(.caption)
             .fontWeight(.bold)
-            .frame(width: 50, height: 50)
+            .frame(width: 20, height: 20)
             .background(Color.blue.opacity(0.3))
             .clipShape(Circle())
             .foregroundColor(.white)
