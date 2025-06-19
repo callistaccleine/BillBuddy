@@ -52,29 +52,120 @@ final class LoginViewModel: ObservableObject {
 struct LoginView: View {
     @StateObject private var viewModel = LoginViewModel()
     @State private var isPasswordVisible: Bool = false
-
+    
     var body: some View {
         VStack {
             Spacer().frame(height: 20)
-
-            Image(systemName: "shield.fill")
+            
+            Image("welcome_image")
                 .resizable()
                 .scaledToFit()
-                .frame(width: 80, height: 80)
+                .frame(width: 150, height: 150)
                 .foregroundColor(.blue)
-
+            
             Text("Welcome Back")
                 .font(.title2)
                 .fontWeight(.bold)
-                .padding(.top, 10)
-
+                .padding(.top, 0.5)
+            
             Text("Please enter your details.")
                 .font(.subheadline)
                 .foregroundColor(.gray)
-
+            
             Spacer().frame(height: 20)
+            
+            // Email
+            TextField("Email", text: $viewModel.email)
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+                .padding(.horizontal, 20)
+                .autocapitalization(.none)
+                .disableAutocorrection(true)
+            
+            // Password with eye icon
+            ZStack(alignment: .trailing) {
+                Group {
+                    if isPasswordVisible {
+                        TextField("Password", text: $viewModel.password)
+                    } else {
+                        SecureField("Password", text: $viewModel.password)
+                    }
+                }
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+                .padding(.horizontal, 20)
+                .autocapitalization(.none)
+                .disableAutocorrection(true)
+                
+                Button(action: {
+                    isPasswordVisible.toggle()
+                }) {
+                    Image(systemName: isPasswordVisible ? "eye.slash" : "eye")
+                        .foregroundColor(.gray)
+                        .padding(.trailing, 30)
+                }
+            }
+            .padding(.top, 5)
+            
+            // Error Message
+            if let error = viewModel.errorMessage {
+                Text(error)
+                    .foregroundColor(.red)
+                    .font(.caption)
+                    .padding(.top, 5)
+            }
+            
+            // Forgot Password
+            HStack {
+                Spacer()
+                Button(action: {}) {
+                    Text("Forgot password")
+                        .font(.caption)
+                        .foregroundColor(.blue)
+                        .underline()
+                }
+                .padding(.trailing, 20)
+            }
+            .padding(.vertical, 5)
+            
+            
+            // Login Button
+            Button(action: {
+                viewModel.signIn()
+            }) {
+                Text("Login")
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color.blue)
+                    .cornerRadius(8)
+            }
+            .padding(.horizontal, 20)
+            .padding(.top, 10)
+            
+            // Navigation to Home
+            NavigationLink(destination: HomeView(),
+                           isActive: $viewModel.isLoggedIn,
+                           label: { EmptyView() })
+            
+            Spacer()
+            
+            HStack {
+                Rectangle()
+                    .frame(height: 1)
+                    .foregroundColor(.gray.opacity(0.4))
 
-            // Google Button
+                Text("Or Sign In With")
+                    .font(.footnote)
+                    .foregroundColor(.gray)
+                    .padding(.horizontal, 8)
+
+                Rectangle()
+                    .frame(height: 1)
+                    .foregroundColor(.gray.opacity(0.4))
+            }
+            .padding(.horizontal, 20)
+
+            // Google button
             Button(action: {}) {
                 HStack {
                     Image(systemName: "g.circle.fill")
@@ -91,8 +182,10 @@ struct LoginView: View {
                 .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.gray, lineWidth: 1))
             }
             .padding(.horizontal, 20)
-
-            // Apple Button
+            .padding(.top, 10 )
+            
+                        
+            //apple button
             Button(action: {}) {
                 HStack {
                     Image(systemName: "applelogo")
@@ -108,114 +201,30 @@ struct LoginView: View {
                 .cornerRadius(8)
             }
             .padding(.horizontal, 20)
-            .padding(.top, 10)
-
-            // Separator
-            HStack {
-                Rectangle().frame(height: 1).foregroundColor(.gray.opacity(0.3))
-                Text("or").font(.caption).foregroundColor(.gray)
-                Rectangle().frame(height: 1).foregroundColor(.gray.opacity(0.3))
-            }
-            .padding(.horizontal, 30)
-            .padding(.vertical, 10)
-
-            // Email
-            TextField("Email", text: $viewModel.email)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .padding(.horizontal, 20)
-                .autocapitalization(.none)
-                .disableAutocorrection(true)
-
-            // Password with eye icon
-            ZStack(alignment: .trailing) {
-                Group {
-                    if isPasswordVisible {
-                        TextField("Password", text: $viewModel.password)
-                    } else {
-                        SecureField("Password", text: $viewModel.password)
-                    }
-                }
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .padding(.horizontal, 20)
-                .autocapitalization(.none)
-                .disableAutocorrection(true)
-
-                Button(action: {
-                    isPasswordVisible.toggle()
-                }) {
-                    Image(systemName: isPasswordVisible ? "eye.slash" : "eye")
-                        .foregroundColor(.gray)
-                        .padding(.trailing, 30)
-                }
-            }
-            .padding(.top, 5)
-
-            // Error Message
-            if let error = viewModel.errorMessage {
-                Text(error)
-                    .foregroundColor(.red)
-                    .font(.caption)
-                    .padding(.top, 5)
-            }
-
-            // Forgot Password
-            HStack {
-                Spacer()
-                Button(action: {}) {
-                    Text("Forgot password")
-                        .font(.caption)
-                        .foregroundColor(.blue)
-                        .underline()
-                }
-                .padding(.trailing, 20)
-            }
-            .padding(.vertical, 5)
-
-            Spacer().padding(.vertical, 5)
-
-            // Login Button
-            Button(action: {
-                viewModel.signIn()
-            }) {
-                Text("Login")
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.blue)
-                    .cornerRadius(8)
-            }
-            .padding(.horizontal, 20)
-            .padding(.top, 10)
-
-            NavigationLink(destination: HomeView(),
-                           isActive: $viewModel.isLoggedIn,
-                           label: { EmptyView() })
-
+            .padding(.top, 1)
+            
+            
             // Sign-up link
             HStack {
                 Text("Don’t have an account?")
                     .font(.footnote)
                     .foregroundColor(.gray)
 
-                Button(action: {
-                    viewModel.signUp()
-                }) {
+                NavigationLink(destination: SignUpView()) {
                     Text("Sign up")
                         .font(.footnote)
                         .foregroundColor(.blue)
                         .fontWeight(.bold)
+                    }
                 }
+                .padding(.top, 10)
+                
             }
-            .padding(.top, 10)
-
-            Spacer()
         }
     }
-}
-
-struct LoginPageView_Previews: PreviewProvider {
-    static var previews: some View {
-        LoginView()
+    
+    struct LoginPageView_Previews: PreviewProvider {
+        static var previews: some View {
+            LoginView()
+        }
     }
-}
