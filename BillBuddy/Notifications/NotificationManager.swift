@@ -1,10 +1,3 @@
-//
-//  NotificationManager.swift
-//  BillBuddy
-//
-//  Created by Callista Cleine on 14/6/2025.
-//
-// Handles registration, permission, scheduling, and delegate callbacks
 import Foundation
 import UserNotifications
 
@@ -36,7 +29,8 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
             intentIdentifiers: [],
             options: []
         )
-        UNUserNotificationCenter.current().setNotificationCategories([billCategory])
+        UNUserNotificationCenter.current()
+            .setNotificationCategories([billCategory])
     }
 
     /// Prompt the user for notification permission
@@ -50,13 +44,51 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
         }
     }
 
-    /// Schedule a local reminder for an unpaid friend
-    func scheduleBillReminder(for friendID: UUID,
-                               amount: Double,
-                               at dueDate: Date) {
+    /// Schedule an immediate one-off notification
+    func scheduleImmediateBillReminder(for friendID: UUID, amount: Double, ownerName: String) {
         let content = UNMutableNotificationContent()
-        content.title = "Hey, you owe A$\(String(format: "%.2f", amount))"
-        content.body = "Tap to mark as paid."
+        content.title = "You owe A$\(String(format: "%.2f", amount)) to \(ownerName)"
+        content.body  = "Reminder sent just now."
+        content.categoryIdentifier = NotificationIdentifier.billReminderCategory
+
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
+        let requestID = "immediate-bill-\(friendID.uuidString)"
+        let request = UNNotificationRequest(
+            identifier: requestID,
+            content: content,
+            trigger: trigger
+        )
+        UNUserNotificationCenter.current().add(request)
+    }
+
+    /// Schedule a repeating daily reminder at the same time as dueDate
+    func scheduleDailyBillReminder(for friendID: UUID, amount: Double, ownerName: String, at dueDate: Date) {
+        let content = UNMutableNotificationContent()
+        content.title = "Reminder: You still owe A$\(String(format: "%.2f", amount)) to \(ownerName)"
+        content.body  = "Tap to mark as paid."
+        content.categoryIdentifier = NotificationIdentifier.billReminderCategory
+
+        var comps = Calendar.current.dateComponents(
+            [.hour, .minute],
+            from: dueDate
+        )
+        // repeats daily at the same hour & minute
+        let trigger = UNCalendarNotificationTrigger(dateMatching: comps, repeats: true)
+        let requestID = "daily-bill-\(friendID.uuidString)"
+        let request = UNNotificationRequest(
+            identifier: requestID,
+            content: content,
+            trigger: trigger
+        )
+        UNUserNotificationCenter.current().add(request)
+    }
+
+    /// Original non-repeating schedule (one-off at dueDate)
+    func scheduleBillReminder(for friendID: UUID, amount: Double, at dueDate: Date) {
+        // You can still use this for single reminders
+        let content = UNMutableNotificationContent()
+        content.title = "You owe A$\(String(format: "%.2f", amount))"
+        content.body  = "Tap to mark as paid."
         content.categoryIdentifier = NotificationIdentifier.billReminderCategory
 
         let comps = Calendar.current.dateComponents(
@@ -73,25 +105,25 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
         UNUserNotificationCenter.current().add(request)
     }
 
-    /// Delegate callback when an action is tapped
+    /// MARK: - UNUserNotificationCenterDelegate
     func userNotificationCenter(_ center: UNUserNotificationCenter,
                                 didReceive response: UNNotificationResponse,
                                 withCompletionHandler completionHandler: @escaping () -> Void) {
         if response.actionIdentifier == NotificationIdentifier.markAsPaidAction {
             let rawID = response.notification.request.identifier
-            let uuidString = rawID.replacingOccurrences(of: "bill-", with: "")
-            if let friendID = UUID(uuidString: uuidString) {
-                // Notify the app to mark as paid
+            // rawID format: "immediate-bill-<uuid>", "daily-bill-<uuid>", or "bill-<uuid>"
+            let parts = rawID.split(separator: "-")
+            if let uuidPart = parts.last,
+               let friendID = UUID(uuidString: String(uuidPart)) {
                 NotificationCenter.default.post(
                     name: .didMarkBillPaid,
                     object: friendID
                 )
-                // Remove pending request
                 UNUserNotificationCenter.current()
                     .removePendingNotificationRequests(withIdentifiers: [rawID])
             }
         }
         completionHandler()
     }
-}
+    }
 
