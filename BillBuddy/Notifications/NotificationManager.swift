@@ -63,46 +63,36 @@ final class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
 
     /// Schedule a repeating daily reminder at the same time as dueDate
     func scheduleDailyBillReminder(for friendID: UUID, amount: Double, ownerName: String, at dueDate: Date) {
-        let content = UNMutableNotificationContent()
-        content.title = "Reminder: You still owe A$\(String(format: "%.2f", amount)) to \(ownerName)"
-        content.body  = "Tap to mark as paid."
-        content.categoryIdentifier = NotificationIdentifier.billReminderCategory
-
-        var comps = Calendar.current.dateComponents(
-            [.hour, .minute],
-            from: dueDate
-        )
-        // repeats daily at the same hour & minute
-        let trigger = UNCalendarNotificationTrigger(dateMatching: comps, repeats: true)
         let requestID = "daily-bill-\(friendID.uuidString)"
-        let request = UNNotificationRequest(
-            identifier: requestID,
-            content: content,
-            trigger: trigger
-        )
-        UNUserNotificationCenter.current().add(request)
-    }
 
-    /// Original non-repeating schedule (one-off at dueDate)
-    func scheduleBillReminder(for friendID: UUID, amount: Double, at dueDate: Date) {
-        // You can still use this for single reminders
-        let content = UNMutableNotificationContent()
-        content.title = "You owe A$\(String(format: "%.2f", amount))"
-        content.body  = "Tap to mark as paid."
-        content.categoryIdentifier = NotificationIdentifier.billReminderCategory
+        UNUserNotificationCenter.current().getPendingNotificationRequests { requests in
+            let alreadyScheduled = requests.contains { $0.identifier == requestID }
 
-        let comps = Calendar.current.dateComponents(
-            [.year, .month, .day, .hour, .minute],
-            from: dueDate
-        )
-        let trigger = UNCalendarNotificationTrigger(dateMatching: comps, repeats: false)
-        let requestID = "bill-\(friendID.uuidString)"
-        let request = UNNotificationRequest(
-            identifier: requestID,
-            content: content,
-            trigger: trigger
-        )
-        UNUserNotificationCenter.current().add(request)
+            guard !alreadyScheduled else {
+                print("📌 Daily reminder already scheduled for \(friendID)")
+                return
+            }
+
+            let content = UNMutableNotificationContent()
+            content.title = "Reminder: You still owe A$\(String(format: "%.2f", amount)) to \(ownerName)"
+            content.body  = "Tap to mark as paid."
+            content.categoryIdentifier = NotificationIdentifier.billReminderCategory
+
+            var comps = DateComponents()
+                    comps.hour = 18
+                    comps.minute = 0
+            let trigger = UNCalendarNotificationTrigger(dateMatching: comps, repeats: true)
+
+            let request = UNNotificationRequest(identifier: requestID, content: content, trigger: trigger)
+
+            UNUserNotificationCenter.current().add(request) { error in
+                if let error = error {
+                    print("❌ Failed to schedule daily reminder: \(error)")
+                } else {
+                    print("✅ Scheduled daily reminder at 5:00 PM for \(friendID)")
+                }
+            }
+        }
     }
 
     /// MARK: - UNUserNotificationCenterDelegate
