@@ -45,6 +45,7 @@ struct BillBuddyApp: App {
                     WelcomeView()
                 }
             }
+            .id(isLoggedIn)
             // Listen for “I’ve Paid” actions
             .onReceive(
                 NotificationCenter.default.publisher(for: .didMarkBillPaid)

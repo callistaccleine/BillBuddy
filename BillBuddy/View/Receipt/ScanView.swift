@@ -109,7 +109,7 @@ struct ScanView: View {
             UploadImage()
         }
         .sheet(isPresented: $showManualEntry) {
-            ConfirmParsedItemsView(receiptItems: parsedItems)
+            ManualEntryView()
         }
     }
 }
